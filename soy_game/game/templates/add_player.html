@@ -1,0 +1,9 @@
+<h1>Add Player</h1>
+
+<form action="addrecord/" method="post">
+{% csrf_token %}
+        Name:<br>
+        <input name="playername">
+        <br><br>
+        <input type="submit" value="Submit">
+</form>
