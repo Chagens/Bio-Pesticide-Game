@@ -1,0 +1,16 @@
+Textures for the cells are stored in a 2D Texture Array in the textures folder.
+
+In your favorite photo editor (I used photoshop, probably don't use paint), open the texture.
+It's a grid of textures. Add your new texture to the grid and count how many textures are in a row and column.
+Import it back to unity.
+Make sure Texture Type is Default, Texture Shape is 2D Array, and Columns and Rows are set according to how many textures per row and column.
+
+Make sure the material "Terrain" in the Shaders folder is set to use the new texture array.
+
+At this point when you call hexGrid.ColorCell(hit.point, activeTexture), activeTexture is an index into the 2d texture array.
+If you have a grid of textures such as:
+
+t1 t2 t3
+t4 t5
+
+Then t1 is index 0, t2 is index 1, t3 is index 2, t4 is index 3, t5 is index 4, and so on if you have more.
