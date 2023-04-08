@@ -15,7 +15,8 @@ pip install -r soyboy_webpage/backend/requirements.txt
 ```
 4. Create a local environment file with the template. This file contains the settings for the django secret key, Debug setting, and allowed hosts. It isn't necessary to change any of this now, but once we deploy this we will need to change these settings.
 ```
-cp env.template .env
+touch soyboy_webpage/.env
+cp soyboy_webpage/env.template soyboy_webpage/.env
 ```
 
 ### Testing backend
@@ -33,7 +34,9 @@ python manage.py runserver
 - This should take you to a login page. Enter you login info you just made, and then you should be taken to the admin page. From here you can create new users, questions, and whatever other models have be included so far.
 
 ## Create React App development environment
-1. Install create-react-app globally (`-g`) 
+1. Install create-react-app globally (`-g`).
+- Note: You may need to use sudo to install create-react-app globally.
+
 ```
 npm install -g create-react-app
 ```
@@ -42,6 +45,7 @@ npm install -g create-react-app
 create-react-app frontend --template file:./cra-template-frontend
 ```
 - This may take a moment. Once its finished the `/frontend/` folder will be created with all of the dependancies installed to the frontend react app
+- Note: You may get a warning about 6 high severity vulnerabilities. I haven't been able to git rid of those, but also they don't seem to be causing any problems.
 3. From `/soyboy_webpage/frontend/` run this command to start the app in developer mode.
 ```
 npm start
