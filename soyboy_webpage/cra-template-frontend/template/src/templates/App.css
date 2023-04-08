@@ -1,0 +1,70 @@
+/* .App {
+  background-color: var(--bgc-0);
+} */
+
+.Home-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.Home-page-title {
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  font-size: 70px;
+  font-weight: 900;
+
+  position: relative;
+  bottom: 30%;
+
+  color: rgb(32, 114, 23);
+  text-shadow: -3px 3px 4px rgb(41, 41, 41);
+}
+
+.login-link {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  
+  position: relative;
+  bottom: 250px;
+}
+
+.Auth-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+
+.Auth-form {
+  width: 420px;
+  box-shadow: 1px 1px 1px 10px var(--shadow-c1);
+  padding-top: 30px;
+  padding-bottom: 20px;
+  border-radius: 8px;
+  background-color: var(--bgc-1);
+}
+
+.Auth-form-content {
+  padding-left: 12%;
+  padding-right: 12%;
+}
+
+.Auth-form-title {
+  text-align: center;
+  margin-bottom: 1em;
+  font-size: 24px;
+  color: var(--grey-0);
+  font-weight: 800;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--grey-0);
+}

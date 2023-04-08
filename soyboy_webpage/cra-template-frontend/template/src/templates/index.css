@@ -1,0 +1,30 @@
+:root {
+  --bgc-0: rgba(200, 200, 200, 0.25);
+  --bgc-1: rgba(156, 94, 69, 0.85);
+  --shadow-c1: rgba(0, 0, 0, 0.16);
+
+  --grey-0: rgb(34, 34, 34);
+
+  --txt-c0: rgb(255, 239, 204);
+}
+
+#root {
+  background-color: var(--bgc-0);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: url('crops.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
