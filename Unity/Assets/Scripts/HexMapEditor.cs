@@ -8,6 +8,7 @@ public class HexMapEditor : MonoBehaviour
 	public int[] textures;
 
 	public HexGrid hexGrid;
+	public TurnManager turnManager;
 
 	private int activeTexture;
 
@@ -17,7 +18,7 @@ public class HexMapEditor : MonoBehaviour
 	}
 
 	void Update () {
-		if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
+		if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
     {
 			HandleInput();
 		}
@@ -33,7 +34,10 @@ public class HexMapEditor : MonoBehaviour
 		RaycastHit hit;
 		if (Physics.Raycast(inputRay, out hit))
     {
-			hexGrid.ColorCell(hit.point, activeTexture);
+			if(turnManager.tilling())
+			{
+				hexGrid.ColorCell(hit.point, activeTexture);
+			}
 		}
 	}
 
