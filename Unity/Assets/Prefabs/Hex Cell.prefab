@@ -48,6 +48,7 @@ MonoBehaviour:
     x: 0
     z: 0
   terrainType: 0
+  plant: {fileID: 5253998943865620241, guid: d484b9f76490dde48ad80efcca3326c8, type: 3}
   neighbors:
   - {fileID: 0}
   - {fileID: 0}

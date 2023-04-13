@@ -96,7 +96,23 @@ public class HexGrid : MonoBehaviour
     int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
 		HexCell cell = cells[index];
 		cell.terrainType = texture;
+		cell.InstantiateObject(cell.plant, new Vector3(0, 30, 0));
 		hexMesh.Triangulate(cells);
     Debug.Log("Touched at " + coordinates.ToString());
   }
+
+	public HexCell GetRandomCell()
+	{
+		int index = Random.Range(0, cells.Length);
+		return cells[index];
+	}
+
+	public void resetCellColors()
+	{
+		foreach(HexCell cell in cells)
+		{
+			cell.terrainType = 0;
+		}
+		hexMesh.Triangulate(cells);
+	}
 }
