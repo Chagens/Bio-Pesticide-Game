@@ -10,7 +10,7 @@ public class HexCell : MonoBehaviour
 	public HexCoordinates coordinates;
 
   public int terrainType = 0;
-	// public GameObject thingToInstantiate;
+	public GameObject plant;
 
   [SerializeField]
   HexCell[] neighbors;
@@ -26,10 +26,9 @@ public class HexCell : MonoBehaviour
     cell.neighbors[(int)direction.Opposite()] = this;
 	}
 
-	/* Instantiates an object at the center of the cell + whatever value you give the new Vector3. Currently it's just 2 units above the cell.
-	void InstantiateObject()
+	/* Instantiates an object at the center of the cell + offset. */
+	public void InstantiateObject(GameObject obj, Vector3 offset)
 	{
-		Instantiate(thingToInstantiate, transform.position + new Vector3(0, 2, 0), Quaternion.identity);
+		Instantiate(obj, transform.position + offset, Quaternion.identity, gameObject.transform);
 	}
-	*/
 }
