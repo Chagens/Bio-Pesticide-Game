@@ -83,25 +83,52 @@ public class HexGrid : MonoBehaviour
 		label.text = cell.coordinates.ToStringOnSeparateLines();
   }
 
-	/* Model for methods that interact with the grid, handle input in new script
+    /* Model for methods that interact with the grid, handle input in new script
 	   Send it here with the position from a raycast and whatever other data you need
 		 Convert the screen position to HexCoordinates
 		 Do whatever you need to do
 		 If you change the texture, make sure to call hexMesh.Triangulate(cells)
 	*/
-  public void ColorCell (Vector3 position, int texture)
-  {
-    position = transform.InverseTransformPoint(position);
-    HexCoordinates coordinates = HexCoordinates.FromPosition(position);
-    int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-		HexCell cell = cells[index];
-		cell.terrainType = texture;
-		cell.InstantiateObject(cell.plant, new Vector3(0, 30, 0));
-		hexMesh.Triangulate(cells);
-    Debug.Log("Touched at " + coordinates.ToString());
-  }
+    public bool ColorCell(Vector3 position, int texture)
+    {
+        position = transform.InverseTransformPoint(position);
+        HexCoordinates coordinates = HexCoordinates.FromPosition(position);
+        int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+        HexCell cell = cells[index];
+        if (cell.terrainType == texture)
+        {
+            // Cell has already been colored with the same texture, return false
+            return false;
+        }
+        else
+        {
+            // Color the cell with the new texture and return true
+            cell.terrainType = texture;
+            cell.InstantiateObject(cell.plant, new Vector3(0, 30, 0));
+            hexMesh.Triangulate(cells);
+            return true;
+        }
+    }
 
-	public HexCell GetRandomCell()
+	public bool CheckColorCell(Vector3 position, int texture)
+	{
+		position = transform.InverseTransformPoint(position);
+		HexCoordinates coordinates = HexCoordinates.FromPosition(position);
+		int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+		HexCell cell = cells[index];
+		if (cell.terrainType == texture)
+		{
+			// Cell has already been colored with the same texture, return false
+			return false;
+		}
+		else
+		{
+			// Cell has not been colored with the same texture, return true
+			return true;
+		}
+	}
+
+    public HexCell GetRandomCell()
 	{
 		int index = Random.Range(0, cells.Length);
 		return cells[index];
