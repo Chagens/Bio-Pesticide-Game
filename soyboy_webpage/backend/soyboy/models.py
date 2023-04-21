@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django_extensions.db.models import TimeStampedModel
 
 class Question(
@@ -33,3 +34,23 @@ class Question(
     def __str__(self):
         return self.title
 
+
+
+class Comment(
+    TimeStampedModel,
+    models.Model
+    ):
+
+    research_experience = models.CharField(max_length=255)
+    username = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255)
+    description = models.TextField()
+
+
+    class Meta:
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
+        ordering = ['id']
+
+    def __str__(self):
+        return self.subject

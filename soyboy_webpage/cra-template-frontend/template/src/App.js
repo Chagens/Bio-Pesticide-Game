@@ -6,7 +6,6 @@ function App() {
   return (
     <div className="Home-page">
         <h1 className="Home-page-title">Bio-Pesticide Game</h1>
-        <a className="login-link" href={'/auth/'}>login</a>
         <a className="login-link" href={'/game/'}>play</a>
     </div>
 )

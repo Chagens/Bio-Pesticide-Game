@@ -32,6 +32,12 @@
   bottom: 250px;
 }
 
+.commnet-link {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 20px;
+  position: relative;
+}
+
 .Auth-form-container {
   display: flex;
   justify-content: center;
