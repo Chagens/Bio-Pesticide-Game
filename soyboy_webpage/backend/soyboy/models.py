@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django_extensions.db.models import TimeStampedModel
 
 class Question(
@@ -26,11 +25,6 @@ class Question(
 
     answer = models.CharField(max_length=8, default='choice_a', choices=ANSWER_CHOICES)
 
-    class Meta:
-        verbose_name = 'Question'
-        verbose_name_plural = 'Questions'
-        ordering = ['id']
-
     def __str__(self):
         return self.title
 
@@ -45,12 +39,6 @@ class Comment(
     username = models.CharField(max_length=255)
     subject = models.CharField(max_length=255)
     description = models.TextField()
-
-
-    class Meta:
-        verbose_name = 'Comment'
-        verbose_name_plural = 'Comments'
-        ordering = ['id']
 
     def __str__(self):
         return self.subject
