@@ -25,11 +25,20 @@ class Question(
 
     answer = models.CharField(max_length=8, default='choice_a', choices=ANSWER_CHOICES)
 
-    class Meta:
-        verbose_name = 'Question'
-        verbose_name_plural = 'Questions'
-        ordering = ['id']
-
     def __str__(self):
         return self.title
 
+
+
+class Comment(
+    TimeStampedModel,
+    models.Model
+    ):
+
+    research_experience = models.CharField(max_length=255)
+    username = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.subject

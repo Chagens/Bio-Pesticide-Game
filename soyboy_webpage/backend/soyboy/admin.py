@@ -12,4 +12,11 @@ class QuestionAdmin(admin.ModelAdmin):
                     'choice_d', 
                     'answer',
                     )
-    
+
+@admin.register(models.Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'username',
+        'research_experience',
+        'subject',
+        'description')
