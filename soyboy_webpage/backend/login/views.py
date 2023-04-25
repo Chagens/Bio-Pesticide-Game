@@ -5,11 +5,19 @@ from .serializers import UserSerializer, RegisterSerializer
 from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics
+from rest_framework import viewsets
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+
 
 
 
 # Class based view to Get User Details using Token Authentication
-class UserDetailAPI(APIView):
+class UserDetailAPI(
+    ListModelMixin,
+    RetrieveModelMixin,
+    viewsets.GenericViewSet
+    ):
+
     authentication_classes = (TokenAuthentication, )
     permission_classes = (AllowAny, )
 
@@ -20,6 +28,11 @@ class UserDetailAPI(APIView):
     
 
 # Class baesd view to register user
-class RegisterUserAPIView(generics.CreateAPIView):
+class RegisterUserAPIView(
+    ListModelMixin,
+    RetrieveModelMixin,
+    viewsets.GenericViewSet
+    ):
+    
     permission_classes = (AllowAny, )
     serializer_class = RegisterSerializer

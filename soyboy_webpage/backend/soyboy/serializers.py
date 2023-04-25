@@ -15,3 +15,14 @@ class QuestionSerializer(serializers.ModelSerializer):
             'choice_d', 
             'answer',
         )
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Comment
+        fields = (
+            'id',
+            'research_experience',
+            'username',
+            'subject',
+            'description'
+        )
