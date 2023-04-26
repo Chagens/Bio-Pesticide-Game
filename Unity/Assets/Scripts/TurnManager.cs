@@ -420,7 +420,7 @@ public class TurnManager : MonoBehaviour
 
     public bool tilling()
     {
-      if(current == TurnPhase.Planting)
+      if(current == TurnPhase.Planting && inventory.money >= perSeedBasePlantPrice)
       {
         return inventory.changeMoney(perSeedBasePlantPrice * -1);
       }
