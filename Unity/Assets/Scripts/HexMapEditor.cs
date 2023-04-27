@@ -86,6 +86,17 @@ public class HexMapEditor : MonoBehaviour
         }
     }
 
+    public HexCell getCell()
+    {
+      Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+      RaycastHit hit;
+      if (Physics.Raycast(inputRay, out hit))
+      {
+        return hexGrid.getCell(hit.point);
+      }
+      return null;
+    }
+
     public void SelectColor(int index)
     {
         activeTexture = textures[index];

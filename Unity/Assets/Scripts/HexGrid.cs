@@ -110,6 +110,16 @@ public class HexGrid : MonoBehaviour
         }
     }
 
+	public HexCell getCell(Vector3 position)
+	{
+		position = transform.InverseTransformPoint(position);
+		HexCoordinates coordinates = HexCoordinates.FromPosition(position);
+		int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+		HexCell cell = cells[index];
+		return cell;
+	}
+
+
 	public bool CheckColorCell(Vector3 position, int texture)
 	{
 		position = transform.InverseTransformPoint(position);
