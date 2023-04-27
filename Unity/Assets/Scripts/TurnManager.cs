@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Linq;
 using TMPro;
 
@@ -18,6 +19,10 @@ using TMPro;
  * Probably should make a new empty Inventory gameobject and a new script to go with it that contains logic for the tools
  * and tracks player money and tools available to player
  * You can add the money to the UI somewhere and you can remove the checkboxes that say Dirt 1, etc. They were just an example of changing the tiles.
+ *
+ *
+ * FUTURE WORK:
+ * Add a yield percentage to cells, use it at the end to calculate the actual yield. Currently cheating and just changing the overall yield when cell's should have an individual effect.
  */
 public class TurnManager : MonoBehaviour
 {
@@ -28,6 +33,9 @@ public class TurnManager : MonoBehaviour
     public InventoryManager inventory;
 
     public int years = 1;
+
+    public TMP_Text perks;
+    public int perksCounter = 1;
 
     public TMP_Text phaseText;
     public TMP_Text yearText;
@@ -41,8 +49,15 @@ public class TurnManager : MonoBehaviour
 
     [Header ("Tool Buttons")]
     public Button tiller;
+    public Button rhizo;
+    public Button pest;
+    public Button fert;
     public Button sale;
 
+    [Header ("Tool Amount Labels")]
+    public GameObject rtext;
+    public GameObject ptext;
+    public GameObject ftext;
 
     [Header ("Preplant Variables")]
     public float perSeedBasePlantPrice = 25.0f; // Represents the labor cost of planting per tile
@@ -62,13 +77,16 @@ public class TurnManager : MonoBehaviour
     int tillType; //3 = subsoil, 6 = conv, 2 = notill. Indexes into cell graphic array for choosing the correct till tile graphic
 
     public float rhizoYieldModifier= 1.1f;
-    public float rhizoAmount = -50.0f;
+    public int rhizoAmount = -50;
 
     public float biopestYieldModifier = .8f;
     public float biopestInsectModifier = .5f;
-    public float biopestAmount = -50.0f;
+    public int biopestAmount = -50;
     public float insectChance = .5f;
     public GameObject[] preplantToggles;
+
+    public bool rhizoing = false;
+    public bool pesticiding = false;
 
     [Header ("Planting Variables")]
     public TMP_Text plantingRandomChanceText;
@@ -90,10 +108,11 @@ public class TurnManager : MonoBehaviour
 
     [Header ("Fertilizer Variables")]
     public GameObject[] fertilizerToggles;
-    public float fertOrgCost = -300.0f;
-    public float fertChemCost = -100.0f;
+    public int fertOrgCost = -300;
+    public int fertChemCost = -100;
     public float fertOrgYieldModifier = .8f;
     public float fertChemYieldModifier = 1.1f;
+    public float finalFertYield = 0f;
     public float fertOrgSaleModifier = 2.0f;
 
     public float irrOvrCost = -500.0f;
@@ -101,10 +120,19 @@ public class TurnManager : MonoBehaviour
     public float irrOvrYieldModifier = 1.2f;
     public float irrNoYieldModifier = .8f;
 
+    public bool fertilizing = false;
+
     [Header ("Reproductive Variables")]
     public TMP_Text repDiseaseRandomChanceText;
     public TMP_Text repInsectRandomChanceText;
     public TMP_Text repWeatherRandomChanceText;
+
+
+    [Header ("Shop Buttons")]
+    public GameObject[] shopButtons;
+    public GameObject tractorButton;
+    public int[] shopPrices;
+    public int[] shopAmounts;
 
     // Start is called before the first frame update
     void Start()
@@ -115,7 +143,10 @@ public class TurnManager : MonoBehaviour
       perSeedBasePlantPriceReset = perSeedBasePlantPrice;
       perPlantSaleAmountReset = perPlantSaleAmount;
       tiller.interactable = false;
+      fert.interactable = false;
       sale.interactable = false;
+
+      ftext.SetActive(false);
     }
 
     void Reset()
@@ -123,6 +154,93 @@ public class TurnManager : MonoBehaviour
       perSeedBasePlantPrice = perSeedBasePlantPriceReset;
       perPlantSaleAmount = perSeedBasePlantPriceReset;
       sale.interactable = false;
+      perks.text = "";
+      perksCounter = 1;
+      if(inventory.ownTractor)
+      {
+        updatePerks("Tractor");
+      }
+    }
+
+    void updatePerks(string item)
+    {
+      perks.text += (perksCounter + " " + item + "\n");
+      perksCounter++;
+    }
+
+    public void shopButtonFunc(int index)
+    {
+      switch(current)
+      {
+        case TurnPhase.Preplant:
+          switch(index)
+          {
+            case 0:
+              inventory.changeMoney(shopPrices[index]);
+              inventory.rhizobium += shopAmounts[index];
+              break;
+            case 1:
+              inventory.changeMoney(shopPrices[index]);
+              inventory.pesticides += shopAmounts[index];
+              break;
+            default:
+              break;
+          }
+          break;
+
+        case TurnPhase.Planting:
+          break;
+
+        case TurnPhase.Cotyledon:
+          break;
+
+        case TurnPhase.Vegatative:
+          break;
+
+        case TurnPhase.Fertilizer:
+          switch(index)
+          {
+            case 0:
+              inventory.changeMoney(shopPrices[index]);
+              inventory.fert += shopAmounts[index];
+              break;
+            default:
+              break;
+          }
+          break;
+
+        case TurnPhase.Harvest:
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    public void buyTractor(GameObject button)
+    {
+      if(inventory.changeMoney(-10000))
+      {
+        inventory.ownTractor = true;
+        button.SetActive(false);
+        updatePerks("Tractor");
+      }
+    }
+
+    void destroyPlant()
+    {
+      if(plants.Length > 0)
+      {
+        int index = UnityEngine.Random.Range(0, plants.Length);
+        GameObject plant = plants[index];
+        while(plant.activeSelf != true)
+        {
+          index = UnityEngine.Random.Range(0, plants.Length);
+          plant = plants[index];
+        }
+        plant.SetActive(false);
+        Debug.Log("Removing plant " + index);
+      }
     }
 
     void activeTurn()
@@ -160,6 +278,11 @@ public class TurnManager : MonoBehaviour
               Rhizobium - if used helps repair nitrogen in the soil, so better yield?
               Bio pesticides - if used, less insects but worse yield?
         */
+          if(years != 1)
+          {
+            Reset();
+          }
+
           if(years == 6)
           {
             turnPanels[7].SetActive(true);
@@ -168,6 +291,23 @@ public class TurnManager : MonoBehaviour
           {
             turnPanels[(int)current].SetActive(true);
           }
+
+          shopAmounts[0] = 10;
+          shopPrices[0] = rhizoAmount;
+          shopAmounts[1] = 10;
+          shopPrices[1] = biopestAmount;
+
+          shopButtons[0].GetComponentsInChildren<TMP_Text>()[0].text = "Rhizobium $" + Math.Abs(rhizoAmount);
+          shopButtons[1].GetComponentsInChildren<TMP_Text>()[0].text = "Pesticides $" + Math.Abs(biopestAmount);
+          for(int i = 2; i < shopButtons.Length; i++)
+          {
+            shopButtons[i].SetActive(false);
+          }
+
+          rhizo.interactable = true;
+          pest.interactable = true;
+          rtext.SetActive(true);
+          ptext.SetActive(true);
 
           yearText.text = "Year " + years;
           Debug.Log(current);
@@ -183,10 +323,15 @@ public class TurnManager : MonoBehaviour
             Random Chance
             Random chance for tractor to break down if owned or for "household issues" (not sure what those would be)
         */
+          rhizo.interactable = false;
+          pest.interactable = false;
+          rtext.SetActive(false);
+          ptext.SetActive(false);
+
           text = "Looks like you're good to plant your soybeans!";
           if(inventory.ownTractor)
           {
-            if(Random.Range(0f, 1f) >= tractorBreakdownChance)
+            if(UnityEngine.Random.Range(0f, 1f) >= tractorBreakdownChance)
             {
               text = "Oh no! Your tractor broke down. You'll have to repair it before you can use it again!";
               inventory.brokenTractor = true;
@@ -213,33 +358,27 @@ public class TurnManager : MonoBehaviour
 
           text = "Looks like disease isn't a problem!";
 
-          if(Random.Range(0f, 1f) >= diseaseChance)
-          {
-            HexCell cell = grid.GetRandomCell();
-            List<Transform> plant = cell.transform.GetComponentsInChildren<Transform>().ToList();
-            if(plant.Count > 1)
-            {
-              Destroy(plant[1].gameObject);
-              /* For now, disease doesn't spread. It should. */
-            }
-            text ="Oh no, you lost a plant to disease!";
-          }
-          cotyledonDiseaseRandomChanceText.text = text;
-
-          text = "The weather looks good!";
-          if(Random.Range(0f, 1f) >= weatherChance)
-          {
-            string[] weather = {"It's been really hot lately, your crops are experiencing heat stress!", "Oh no, you're going through a drought!", "Heavy winds are wreaking havoc in your field!"};
-            text = weather[Random.Range(0, 3)];
-            yieldPercent *= weatherYieldModifier;
-          }
-          cotyledonWeatherRandomChanceText.text = text;
-
           plants = GameObject.FindGameObjectsWithTag("Plant");
           foreach(GameObject p in plants)
           {
             p.GetComponent<Plant>().stages[0].SetActive(true);
           }
+
+          if(UnityEngine.Random.Range(0f, 1f) >= diseaseChance)
+          {
+            destroyPlant();
+            text ="Oh no, you lost a plant to disease!";
+          }
+          cotyledonDiseaseRandomChanceText.text = text;
+
+          text = "The weather looks good!";
+          if(UnityEngine.Random.Range(0f, 1f) >= weatherChance)
+          {
+            string[] weather = {"It's been really hot lately, your crops are experiencing heat stress! This will affect your yield!", "Oh no, you're going through a drought! This will affect your yield!", "Heavy winds are wreaking havoc in your field! This will affect your yield!"};
+            text = weather[UnityEngine.Random.Range(0, 3)];
+            yieldPercent *= weatherYieldModifier;
+          }
+          cotyledonWeatherRandomChanceText.text = text;
 
           turnPanels[(int)current].SetActive(true);
           Debug.Log(current);
@@ -253,30 +392,18 @@ public class TurnManager : MonoBehaviour
           */
           text = "Looks like disease isn't a problem!";
 
-          if(Random.Range(0f, 1f) >= diseaseChance)
+          if(UnityEngine.Random.Range(0f, 1f) >= diseaseChance)
           {
-            HexCell cell = grid.GetRandomCell();
-            List<Transform> plant = cell.transform.GetComponentsInChildren<Transform>().ToList();
-            if(plant.Count > 1)
-            {
-              Destroy(plant[1].gameObject);
-              /* For now, disease doesn't spread. It should. */
-            }
+            destroyPlant();
             text ="Oh no, you lost a plant to disease!";
           }
           vegDiseaseRandomChanceText.text = text;
 
           text = "Looks like insects aren't a problem!";
 
-          if(Random.Range(0f, 1f) >= insectChance)
+          if(UnityEngine.Random.Range(0f, 1f) >= insectChance)
           {
-            HexCell cell = grid.GetRandomCell();
-            List<Transform> plant = cell.transform.GetComponentsInChildren<Transform>().ToList();
-            if(plant.Count > 1)
-            {
-              Destroy(plant[1].gameObject);
-              /* For now, disease doesn't spread. It should. */
-            }
+            destroyPlant();
             text ="Oh no, you lost a plant to insects!";
           }
           vegDiseaseRandomChanceText.text = text;
@@ -307,6 +434,9 @@ public class TurnManager : MonoBehaviour
             p.GetComponent<Plant>().stages[1].SetActive(false);
             p.GetComponent<Plant>().stages[2].SetActive(true);
           }
+          fert.interactable = true;
+          ftext.SetActive(true);
+
           turnPanels[(int)current].SetActive(true);
           Debug.Log(current);
           break;
@@ -322,42 +452,33 @@ public class TurnManager : MonoBehaviour
           */
           text = "Looks like disease isn't a problem!";
 
-          if(Random.Range(0f, 1f) >= diseaseChance / 2)
+          if(UnityEngine.Random.Range(0f, 1f) >= diseaseChance / 2)
           {
-            HexCell cell = grid.GetRandomCell();
-            List<Transform> plant = cell.transform.GetComponentsInChildren<Transform>().ToList();
-            if(plant.Count > 1)
-            {
-              Destroy(plant[1].gameObject);
-              /* For now, disease doesn't spread. It should. */
-            }
+            destroyPlant();
             text ="Oh no, you lost a plant to disease!";
           }
           repDiseaseRandomChanceText.text = text;
 
           text = "Looks like insects aren't a problem!";
 
-          if(Random.Range(0f, 1f) >= insectChance / 2)
+          if(UnityEngine.Random.Range(0f, 1f) >= insectChance / 2)
           {
-            HexCell cell = grid.GetRandomCell();
-            List<Transform> plant = cell.transform.GetComponentsInChildren<Transform>().ToList();
-            if(plant.Count > 1)
-            {
-              Destroy(plant[1].gameObject);
-              /* For now, disease doesn't spread. It should. */
-            }
+            destroyPlant();
             text ="Oh no, you lost a plant to insects!";
           }
           repDiseaseRandomChanceText.text = text;
 
           text = "The weather looks good!";
-          if(Random.Range(0f, 1f) >= weatherChance / 2)
+          if(UnityEngine.Random.Range(0f, 1f) >= weatherChance / 2)
           {
-            string[] weather = {"It's been really hot lately, your crops are experiencing heat stress!", "Oh no, you're going through a drought!", "Heavy winds are wreaking havoc in your field!"};
-            text = weather[Random.Range(0, 3)];
+            string[] weather = {"It's been really hot lately, your crops are experiencing heat stress! This will affect your yield!", "Oh no, you're going through a drought! This will affect your yield!", "Heavy winds are wreaking havoc in your field! This will affect your yield!"};
+            text = weather[UnityEngine.Random.Range(0, 3)];
             yieldPercent *= weatherYieldModifier;
           }
           repWeatherRandomChanceText.text = text;
+
+          fert.interactable = false;
+          ftext.SetActive(false);
 
           foreach(GameObject p in plants)
           {
@@ -413,6 +534,85 @@ public class TurnManager : MonoBehaviour
       activeTurn();
     }
 
+    void Update()
+    {
+      if(Input.GetMouseButtonDown(0))
+      {
+        if(rhizoing)
+        {
+          rhizoClicked();
+        }
+
+        if(pesticiding)
+        {
+          pestClicked();
+        }
+
+        if(fertilizing)
+        {
+          fertClicked();
+        }
+      }
+    }
+
+    public void rhizoSelected()
+    {
+      bool r = rhizoing == true ? false : true;
+      rhizoing = r;
+    }
+
+    public void rhizoClicked()
+    {
+      /*
+      HexCell cell = editor.getCell(); For future work mentioned at top
+      */
+
+      if(inventory.rhizobium > 0)
+      {
+        inventory.rhizobium--;
+        yieldPercent *= rhizoYieldModifier;
+      }
+    }
+
+    public void pestSelected()
+    {
+      bool r = pesticiding == true ? false : true;
+      rhizoing = false;
+      pesticiding = r;
+    }
+
+    public void pestClicked()
+    {
+      /*
+      HexCell cell = editor.getCell(); For future work mentioned at top
+      */
+
+      if(inventory.pesticides > 0)
+      {
+        inventory.pesticides--;
+        yieldPercent *= biopestYieldModifier;
+      }
+    }
+
+    public void fertSelected()
+    {
+      bool r = fertilizing == true ? false : true;
+      fertilizing = r;
+    }
+
+    public void fertClicked()
+    {
+      /*
+      HexCell cell = editor.getCell(); For future work mentioned at top
+      */
+
+      if(inventory.fert > 0)
+      {
+        inventory.fert--;
+        yieldPercent *= finalFertYield;
+      }
+    }
+
     public void tillSelected()
     {
       editor.SelectColor(tillType);
@@ -452,6 +652,7 @@ public class TurnManager : MonoBehaviour
       {
         perSeedBasePlantPrice *= gmoPriceModifier;
         yieldPercent *= gmoYieldModifier;
+        updatePerks("GMOs");
       }
 
       /* If Subsoil tilling */
@@ -460,6 +661,7 @@ public class TurnManager : MonoBehaviour
         perSeedBasePlantPrice *= subsoilPriceModifier;
         yieldPercent *= subsoilYieldModifier;
         tillType = 2;
+        updatePerks("Subsoiling");
       }
       /* If no till */
       else if(preplantToggles[3].GetComponent<Toggle>().isOn)
@@ -467,25 +669,12 @@ public class TurnManager : MonoBehaviour
         perSeedBasePlantPrice *= notillPriceModifier;
         yieldPercent *= notillYieldModifier;
         tillType = 1;
+        updatePerks("No Tilling");
       }
       else /* conventional tilling */
       {
         tillType = 5;
-      }
-
-      /* If Rhizobium */
-      if(preplantToggles[4].GetComponent<Toggle>().isOn)
-      {
-        yieldPercent *= rhizoYieldModifier;
-        inventory.changeMoney(rhizoAmount);
-      }
-
-      /* If BioPesticides */
-      if(preplantToggles[5].GetComponent<Toggle>().isOn)
-      {
-        yieldPercent *= biopestYieldModifier;
-        insectChance *= biopestInsectModifier;
-        inventory.changeMoney(biopestAmount);
+        updatePerks("conventional Tilling");
       }
     }
 
@@ -494,30 +683,47 @@ public class TurnManager : MonoBehaviour
      */
     public void fertilizerConfirm()
     {
+      int cost;
       if(fertilizerToggles[0].GetComponent<Toggle>().isOn)
       {
         inventory.changeMoney(fertOrgCost);
-        yieldPercent *= fertOrgYieldModifier;
+        finalFertYield = fertOrgYieldModifier;
+        cost = fertOrgCost;
         perPlantSaleAmount *= 2;
+        updatePerks("Organic Fertilizer");
       }
       else
       {
         inventory.changeMoney(fertChemCost);
-        yieldPercent *= fertChemYieldModifier;
+        finalFertYield = fertChemYieldModifier;
+        cost = fertChemCost;
+        updatePerks("Chemical Fertilizer");
       }
 
       if(fertilizerToggles[1].GetComponent<Toggle>().isOn)
       {
         inventory.changeMoney(irrOvrCost);
         yieldPercent *= irrOvrYieldModifier;
+        updatePerks("Overhead Irrigation");
       }
       else if(fertilizerToggles[2].GetComponent<Toggle>().isOn)
       {
         inventory.changeMoney(irrFloodCost);
+        updatePerks("Flood Irrigation");
       }
       else
       {
         yieldPercent *= irrNoYieldModifier;
+      }
+
+      shopAmounts[0] = 10;
+      shopPrices[0] = cost;
+
+      shopButtons[0].GetComponentsInChildren<TMP_Text>()[0].text = "Fertilizer $" + Math.Abs(cost);
+
+      for(int i = 1; i < shopButtons.Length; i++)
+      {
+        shopButtons[i].SetActive(false);
       }
     }
 

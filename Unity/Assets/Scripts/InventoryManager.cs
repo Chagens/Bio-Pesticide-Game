@@ -7,7 +7,14 @@ using TMPro;
 public class InventoryManager : MonoBehaviour
 {
     public float money = 5000;
+    public int rhizobium = 0;
+    public int pesticides = 0;
+    public int fert = 0;
+
     public TMP_Text moneyText;
+    public TMP_Text rText;
+    public TMP_Text pText;
+    public TMP_Text fText;
 
     public bool ownTractor = false;
     public bool brokenTractor = false;
@@ -20,7 +27,9 @@ public class InventoryManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+      rText.text = "Rhizobium: " + rhizobium;
+      pText.text = "BioPesticides: " + pesticides;
+      fText.text = "Fertilizer: " + fert;
     }
 
     /* Adds to money. Pass in negative amount to subtract */
